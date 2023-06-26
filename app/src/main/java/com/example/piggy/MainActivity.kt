@@ -5,42 +5,47 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.CalendarView
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.piggy.utils.CalendarStore
 import com.example.piggy.utils.CustomAdapter
 import com.example.piggy.utils.SpendItem
 
 class MainActivity : AppCompatActivity() {
     private val list = mutableListOf<SpendItem>()
     private lateinit var listAdapter: CustomAdapter
+    private lateinit var calendarView: CalendarView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var Login = findViewById<Button>(R.id.Login)
-
         listAdapter = CustomAdapter(list)
 
-
         configAddButton()
+        configLoginButton()
         configListView()
         configCalc()
-
-        Login.setOnClickListener {
-            intent = Intent(this, login::class.java)
-
-            intent.putExtra("Hi", "Working")
-            startActivity(intent)
-        }
+        configCalendar()
     }
 
     private fun configAddButton() {
         val addBtn: Button = findViewById(R.id.addItem)
         addBtn.setOnClickListener {
             showInputDialog()
+        }
+    }
+
+    private fun configLoginButton() {
+        var login = findViewById<Button>(R.id.Login)
+        login.setOnClickListener {
+            intent = Intent(this, com.example.piggy.login::class.java)
+
+            intent.putExtra("Hi", "Working")
+            startActivity(intent)
         }
     }
 
@@ -67,8 +72,11 @@ class MainActivity : AppCompatActivity() {
 
             val item = SpendItem(label, amount)
             list.add(item)
-            listAdapter.notifyDataSetChanged()
+            CalendarStore.putItems(calendarView.date, list.toMutableList())
 
+            println(CalendarStore.toString())
+
+            listAdapter.notifyDataSetChanged()
         }
 
         builder.setNegativeButton("Cancel") { dialog, which ->
@@ -89,7 +97,26 @@ class MainActivity : AppCompatActivity() {
             builder.setTitle("Total")
             builder.setMessage("$total")
 
+            builder.setNegativeButton("Close") {dialog, which ->
+                dialog.cancel()
+            }
+
             builder.create().show()
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun configCalendar() {
+        calendarView = findViewById(R.id.calendar)
+
+        calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
+            val key = calendarView.date
+            val newList = CalendarStore.getItems(key)
+
+            list.clear()
+            list.addAll(newList)
+            listAdapter.notifyDataSetChanged()
+
         }
     }
 }
