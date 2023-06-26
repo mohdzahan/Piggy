@@ -1,15 +1,16 @@
 package com.example.piggy
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ListView
-import android.widget.Toast
-import com.example.piggy.utils.SpendItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.piggy.utils.CustomAdapter
+import com.example.piggy.utils.SpendItem
 
 class MainActivity : AppCompatActivity() {
     private val list = mutableListOf<SpendItem>()
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
 
         var Login = findViewById<Button>(R.id.Login)
 
-        listAdapter = CustomAdapter(this, list)
+        listAdapter = CustomAdapter(list)
 
 
         configAddButton()
@@ -34,7 +35,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("Hi", "Working")
             startActivity(intent)
         }
-
     }
 
     private fun configAddButton() {
@@ -45,10 +45,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configListView() {
-        val listView: ListView = findViewById(R.id.list_view)
+        val listView: RecyclerView = findViewById(R.id.recycle)
+        listView.layoutManager = LinearLayoutManager(this)
         listView.adapter = listAdapter
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showInputDialog() {
         val builder = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.input_dialog, null)
@@ -59,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         builder.setTitle("Add Spend Item")
         builder.setView(dialogView)
 
-        builder.setPositiveButton("Add") { dialog, which ->
+        builder.setPositiveButton("Add") { _, _ ->
             val label = nameField.text.toString()
             val amount = priceField.text.toString().toFloat()
 
@@ -68,8 +70,6 @@ class MainActivity : AppCompatActivity() {
             listAdapter.notifyDataSetChanged()
 
         }
-
-
 
         builder.setNegativeButton("Cancel") { dialog, which ->
             dialog.cancel()
@@ -90,10 +90,6 @@ class MainActivity : AppCompatActivity() {
             builder.setMessage("$total")
 
             builder.create().show()
-
         }
-
     }
-
-
 }

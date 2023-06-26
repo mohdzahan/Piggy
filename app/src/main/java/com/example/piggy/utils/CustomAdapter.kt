@@ -1,30 +1,32 @@
 package com.example.piggy.utils
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.piggy.R
 
-class CustomAdapter(context: Context, private val list: List<SpendItem>) :
-    ArrayAdapter<SpendItem>(context, R.layout.spend_item, list) {
+class CustomAdapter(private val list: List<SpendItem>) :
+    RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var listItemView = convertView
-        if (convertView == null) {
-            listItemView = LayoutInflater.from(context).inflate(R.layout.spend_item, parent, false)
-        }
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val nameView: TextView = view.findViewById(R.id.label)
+        val priceView: TextView = view.findViewById(R.id.price)
+    }
 
-        val data = list[position]
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view =LayoutInflater.from(parent.context).inflate(R.layout.spend_item, parent, false)
+        return ViewHolder(view)
+    }
 
-        val nameTextView: TextView? = listItemView?.findViewById(R.id.name)
-        val priceTextView: TextView? = listItemView?.findViewById(R.id.price)
+    override fun getItemCount(): Int {
+        return list.size
+    }
 
-        nameTextView?.text = data.label
-        priceTextView?.text = data.price.toString()
-
-        return listItemView!!
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = list[position]
+        holder.nameView.text = item.label
+        holder.priceView.text = item.price.toString()
     }
 }
