@@ -28,15 +28,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        listAdapter = CustomAdapter(list)
-
         configAddButton()
         configLoginButton()
         configListView()
         configCalc()
         configCalendar()
-
-        curDate = dateFormat.format(System.currentTimeMillis())
     }
 
     private fun configAddButton() {
@@ -49,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     private fun configLoginButton() {
         var login = findViewById<Button>(R.id.Login)
         login.setOnClickListener {
-            intent = Intent(this, com.example.piggy.login::class.java)
+            intent = Intent(this, com.example.piggy.LoginActivity::class.java)
 
             intent.putExtra("Hi", "Working")
             startActivity(intent)
@@ -57,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configListView() {
+        listAdapter = CustomAdapter(list)
         val listView: RecyclerView = findViewById(R.id.recycle)
         listView.layoutManager = LinearLayoutManager(this)
         listView.adapter = listAdapter
@@ -116,9 +113,12 @@ class MainActivity : AppCompatActivity() {
     private fun configCalendar() {
         calendarView = findViewById(R.id.calendar)
 
+        curDate = getFormattedDateString()
+
         calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-            val dateStr = "$dayOfMonth-${month + 1}-${year}"
-            curDate = dateFormat.format(view.date)
+            val dayStr = dayOfMonth.toString().padStart(2, '0')
+            val monthStr = month.toString().padStart(2, '0')
+            curDate = "$dayStr-${monthStr}-${year}"
             println(curDate)
             val newList = CalendarStore.getItems(curDate)
 
@@ -126,5 +126,11 @@ class MainActivity : AppCompatActivity() {
             list.addAll(newList)
             listAdapter.notifyDataSetChanged()
         }
+    }
+
+    private fun getFormattedDateString(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        return dateFormat.format(calendar.time)
     }
 }
