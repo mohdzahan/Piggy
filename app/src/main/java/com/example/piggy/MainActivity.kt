@@ -13,11 +13,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.piggy.utils.CalendarStore
 import com.example.piggy.utils.CustomAdapter
 import com.example.piggy.utils.SpendItem
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val list = mutableListOf<SpendItem>()
+    private val dateFormat = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG, Locale.UK)
+
     private lateinit var listAdapter: CustomAdapter
     private lateinit var calendarView: CalendarView
+    private lateinit var curDate: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         configListView()
         configCalc()
         configCalendar()
+
+        curDate = dateFormat.format(System.currentTimeMillis())
     }
 
     private fun configAddButton() {
@@ -72,11 +79,11 @@ class MainActivity : AppCompatActivity() {
 
             val item = SpendItem(label, amount)
             list.add(item)
-            CalendarStore.putItems(calendarView.date, list.toMutableList())
 
-            println(CalendarStore.toString())
+            CalendarStore.putItems(curDate, list.toMutableList())
 
             listAdapter.notifyDataSetChanged()
+            println(CalendarStore.toString())
         }
 
         builder.setNegativeButton("Cancel") { dialog, which ->
@@ -110,13 +117,14 @@ class MainActivity : AppCompatActivity() {
         calendarView = findViewById(R.id.calendar)
 
         calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-            val key = calendarView.date
-            val newList = CalendarStore.getItems(key)
+            val dateStr = "$dayOfMonth-${month + 1}-${year}"
+            curDate = dateFormat.format(view.date)
+            println(curDate)
+            val newList = CalendarStore.getItems(curDate)
 
             list.clear()
             list.addAll(newList)
             listAdapter.notifyDataSetChanged()
-
         }
     }
 }
